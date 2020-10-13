@@ -65,10 +65,11 @@
 
                     var nextTimeString = new Date(events[closest_event]['start']['dateTime'])
 
-                    document.getElementById("nextTimePlaceholder").innerHTML = "<i>" + nextTimeString.toDateString() + "</i>"
-                    document.getElementById("nextAt").removeAttribute("hidden")
+                    document.getElementById("nextTimePlaceholder").innerHTML = "<i>" + nextTimeString.toDateString() + "</i> at <i>" + nextTimeString.toTimeString().substring(0, 5) + "</i>"
 
                     if ("location" in events[closest_event]) {
+                        document.getElementById("nextIn").removeAttribute("hidden")
+
                         var nextPlaceString = events[closest_event]["location"]
                         document.getElementById("nextPlacePlaceholder").innerHTML = "<i>" + nextPlaceString + "</i>"
                         document.getElementById("nextPlacePlaceholder").removeAttribute("hidden")
@@ -102,7 +103,7 @@
 
 <p style="text-align:center" id="nextTimePlaceholder"><i>Nothing scheduled.</i></p>
 
-<p style="text-align: center" id="nextAt" hidden>at</p>
+<p style="text-align: center" id="nextIn" hidden>in</p>
 
 <p style="text-align:center" id="nextPlacePlaceholder" hidden><i>Nothing scheduled.</i></p>
 
