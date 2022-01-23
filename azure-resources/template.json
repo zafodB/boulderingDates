@@ -1,0 +1,114 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "staticSites_climbingdate_name": {
+            "defaultValue": "climbingdate",
+            "type": "String"
+        },
+        "dnszones_goclimbing_ml_name": {
+            "defaultValue": "goclimbing.ml",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.Network/dnszones",
+            "apiVersion": "2018-05-01",
+            "name": "[parameters('dnszones_goclimbing_ml_name')]",
+            "location": "global",
+            "properties": {
+                "zoneType": "Public"
+            }
+        },
+        {
+            "type": "Microsoft.Web/staticSites",
+            "apiVersion": "2021-02-01",
+            "name": "[parameters('staticSites_climbingdate_name')]",
+            "location": "West Europe",
+            "sku": {
+                "name": "Free",
+                "tier": "Free"
+            },
+            "properties": {
+                "repositoryUrl": "https://github.com/zafodB/boulderingDates",
+                "branch": "master",
+                "stagingEnvironmentPolicy": "Enabled",
+                "allowConfigFileUpdates": true
+            }
+        },
+        {
+            "type": "Microsoft.Network/dnszones/NS",
+            "apiVersion": "2018-05-01",
+            "name": "[concat(parameters('dnszones_goclimbing_ml_name'), '/@')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/dnszones', parameters('dnszones_goclimbing_ml_name'))]"
+            ],
+            "properties": {
+                "TTL": 172800,
+                "NSRecords": [
+                    {
+                        "nsdname": "ns1-37.azure-dns.com."
+                    },
+                    {
+                        "nsdname": "ns2-37.azure-dns.net."
+                    },
+                    {
+                        "nsdname": "ns3-37.azure-dns.org."
+                    },
+                    {
+                        "nsdname": "ns4-37.azure-dns.info."
+                    }
+                ],
+                "targetResource": {}
+            }
+        },
+        {
+            "type": "Microsoft.Network/dnszones/SOA",
+            "apiVersion": "2018-05-01",
+            "name": "[concat(parameters('dnszones_goclimbing_ml_name'), '/@')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/dnszones', parameters('dnszones_goclimbing_ml_name'))]"
+            ],
+            "properties": {
+                "TTL": 3600,
+                "SOARecord": {
+                    "email": "azuredns-hostmaster.microsoft.com",
+                    "expireTime": 2419200,
+                    "host": "ns1-37.azure-dns.com.",
+                    "minimumTTL": 300,
+                    "refreshTime": 3600,
+                    "retryTime": 300,
+                    "serialNumber": 1
+                },
+                "targetResource": {}
+            }
+        },
+        {
+            "type": "Microsoft.Web/staticSites/customDomains",
+            "apiVersion": "2021-02-01",
+            "name": "[concat(parameters('staticSites_climbingdate_name'), '/goclimbing.ml')]",
+            "location": "West Europe",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/staticSites', parameters('staticSites_climbingdate_name'))]"
+            ],
+            "properties": {}
+        },
+        {
+            "type": "Microsoft.Network/dnszones/A",
+            "apiVersion": "2018-05-01",
+            "name": "[concat(parameters('dnszones_goclimbing_ml_name'), '/@')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/dnszones', parameters('dnszones_goclimbing_ml_name'))]",
+                "[resourceId('Microsoft.Web/staticSites', parameters('staticSites_climbingdate_name'))]"
+            ],
+            "properties": {
+                "TTL": 3600,
+                "targetResource": {
+                    "id": "[resourceId('Microsoft.Web/staticSites', parameters('staticSites_climbingdate_name'))]"
+                }
+            }
+        }
+    ]
+}
