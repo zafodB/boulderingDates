@@ -8,9 +8,26 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<style>
+    @media (prefers-color-scheme: dark) {
+      body {
+        background-color: black;
+        color: white;
+      }
+    }
+  </style>
+
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jsrsasign/8.0.20/jsrsasign-all-min.js"></script>
 
 <script>
+
+    function getTimestampThreeDaysAgo(){
+        const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
+
+        // Convert to ISO 8601 format (UTC)
+        return threeDaysAgo.toISOString();
+    }
 
     function doMainStuff() {
         var pHeader = {"alg": "RS256", "typ": "JWT"}
@@ -82,7 +99,9 @@
 
             getEventsRequest.open('GET',
                 'https://www.googleapis.com/calendar/v3/calendars/' + id + '/events' +
-                '?access_token=' + token);
+                '?timeMin=' + getTimestampThreeDaysAgo() +
+                '&access_token=' + token
+            );
 
             getEventsRequest.send();
         });
